@@ -61,7 +61,7 @@ def microcompact(messages: list, keep_turns: int = 3) -> int:
 def auto_compact(
     messages: list,
     llm_client: AnthropicClient,
-    threshold: int = 3000, # by deafult: 40000
+    threshold: int = 40000, # by deafult: 40000
     keep_recent: int = 6,
 ) -> bool:
     """Compact old messages into a summary when token count exceeds threshold.
@@ -76,8 +76,12 @@ def auto_compact(
     if len(messages) <= keep_recent + 2:
         return False
 
-    old = messages[:-keep_recent]
-    recent = messages[-keep_recent:]
+    if keep_recent == 0:
+        old = messages[:]
+        recent = []
+    else:
+        old = messages[:-keep_recent]
+        recent = messages[-keep_recent:]
 
     print_compact(f"auto_compact triggered: ~{tokens_before} tokens > {threshold} threshold, summarizing {len(old)} old messages ...")
 

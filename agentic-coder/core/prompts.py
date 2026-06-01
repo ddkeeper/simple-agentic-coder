@@ -42,4 +42,5 @@ def build_system_prompt() -> str:
 - Use tools to verify your work (read after edit).
 - Keep working until the task is fully complete.
 - Never fabricate file contents — always read first.
+- When the user asks you to "remember" something, keep it in conversation context only. Do NOT write to MEMORY.md or any other file unless explicitly asked.
 """

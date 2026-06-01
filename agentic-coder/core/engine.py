@@ -23,44 +23,74 @@ class Engine:
 
     def run(self, user_input: str) -> str:
         """Process one user turn. Returns the final assistant text."""
-        from ui.console import print_info, print_tool
+        from ui.console import print_info, print_tool, print_token_usage, stream_print
 
         self.messages.append({"role": "user", "content": user_input})
         tools = get_anthropic_tools()
 
+        # Show context state once per user turn
+        tokens = estimate_tokens(self.messages)
+        print_info(f"  context: ~{tokens} tokens, {len(self.messages)} messages")
+
+        # Accumulate token usage across all LLM calls in this turn
+        turn_usage: dict[str, int] = {"input_tokens": 0, "output_tokens": 0}
+
         while True:
             # Context compression before each LLM call
-            tokens = estimate_tokens(self.messages)
-            print_info(f"  context: ~{tokens} tokens, {len(self.messages)} messages")
             microcompact(self.messages)
             auto_compact(self.messages, self.llm)
 
-            response = self.llm.send(
+            # --- Streaming LLM call ---
+            gen = self.llm.send_stream(
                 system=self.system_prompt,
                 messages=self.messages,
                 tools=tools,
             )
 
-            # Append full assistant response
-            self.messages.append({"role": "assistant", "content": response.content})
+            try:
+                ctx, _first_event = next(gen)
+            except StopIteration:
+                return ""
 
-            # Extract text for display
-            final_text = ""
-            for block in response.content:
-                if hasattr(block, "text"):
-                    final_text += block.text
+            try:
+                stream_print(gen)
+            except KeyboardInterrupt:
+                ctx.interrupted = True
 
-            # If no tool calls, we're done
-            if response.stop_reason != "tool_use":
-                return final_text
+            # Accumulate token usage
+            turn_usage["input_tokens"] += ctx.usage.get("input_tokens", 0)
+            turn_usage["output_tokens"] += ctx.usage.get("output_tokens", 0)
+
+            # --- Interrupt handling ---
+            if ctx.interrupted:
+                safe_content = []
+                for block in ctx.content_blocks:
+                    if getattr(block, "type", None) == "text":
+                        safe_content.append({"type": "text", "text": block.text})
+                if not safe_content and ctx.text:
+                    safe_content.append({"type": "text", "text": ctx.text})
+                safe_content.append({
+                    "type": "text",
+                    "text": "\n[User interrupted the generation]",
+                })
+                self.messages.append({"role": "assistant", "content": safe_content})
+                print_info("\ngeneration interrupted")
+                print_token_usage(turn_usage)
+                return ""
+
+            # --- Normal path ---
+            self.messages.append({"role": "assistant", "content": ctx.content_blocks})
+
+            if ctx.stop_reason != "tool_use":
+                print_token_usage(turn_usage)
+                return ctx.text
 
             # Execute each tool call
             tool_results = []
-            for block in response.content:
-                if block.type == "tool_use":
+            for block in ctx.content_blocks:
+                if hasattr(block, "type") and block.type == "tool_use":
                     output = self._dispatch_tool(block.name, block.input)
 
-                    # Git auto-commit after successful file writes
                     if block.name in ("write_file", "edit_file") and not output.startswith("Error"):
                         path = block.input.get("path", "")
                         abs_path = str(Path(path).expanduser().resolve())
@@ -73,10 +103,9 @@ class Engine:
                         "type": "tool_result",
                         "tool_use_id": block.id,
                         "content": output,
-                        "_tool_name": block.name,  # for microcompact preservation
+                        "_tool_name": block.name,
                     })
 
-            # Append tool results as a user message
             if tool_results:
                 self.messages.append({"role": "user", "content": tool_results})
 
