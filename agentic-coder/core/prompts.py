@@ -21,6 +21,15 @@ def build_system_prompt() -> str:
 
     branch = get_current_branch()
 
+    rules_section = ""
+    try:
+        from core.state import get_state
+        state = get_state()
+        if state.coder_rules:
+            rules_section = f"\n\n<project_rules>\n{state.coder_rules}\n</project_rules>"
+    except RuntimeError:
+        pass
+
     return f"""You are a coding agent working in {cwd}.
 
 ## Environment
@@ -43,4 +52,4 @@ def build_system_prompt() -> str:
 - Keep working until the task is fully complete.
 - Never fabricate file contents — always read first.
 - When the user asks you to "remember" something, keep it in conversation context only. Do NOT write to MEMORY.md or any other file unless explicitly asked.
-"""
+{rules_section}"""

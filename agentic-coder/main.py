@@ -41,15 +41,21 @@ def main():
     import tools.fs      # noqa: F401 - registers file tools
     import tools.shell   # noqa: F401 - registers shell tool
     import tools.git     # noqa: F401 - registers git_log tool
+    import tools.agent_tools  # noqa: F401 - registers agent tools
     from core.commands import handle_input
     from core.engine import Engine
     from core.llm import AnthropicClient
     from core.prompts import build_system_prompt
     from core.session import load_session, most_recent_name
+    from core.state import get_state, init_state
     from ui.console import console, print_info, print_session_history
     from ui.input import get_input
 
+    init_state()
+
     llm = AnthropicClient(model=args.model)
+    get_state().llm = llm
+
     engine = Engine(
         llm_client=llm,
         system_prompt=build_system_prompt(),

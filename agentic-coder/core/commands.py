@@ -161,3 +161,53 @@ def cmd_sessions(engine: Engine, arg: str) -> None:
             f"[dim]{ts}[/]"
         )
     console.print(f"\n[dim]  Use /resume {sessions[0]['name']} to restore.[/]\n")
+
+
+@register_command("permissions")
+def cmd_permissions(engine: Engine, arg: str) -> None:
+    """List or revoke permissions. Usage: /permissions [revoke <key>]"""
+    from core.state import get_state, remove_permission
+    from ui.console import console
+
+    state = get_state()
+    if not state.permissions:
+        console.print("[dim]  No saved permissions.[/]")
+        return
+
+    if arg.startswith("revoke "):
+        key = arg[7:].strip()
+        if remove_permission(key):
+            console.print(f"[green]  Revoked: {key}[/]")
+        else:
+            console.print(f"[red]  Not found: {key}[/]")
+        return
+
+    console.print("\n[bold]Saved permissions:[/]")
+    for key, rule in state.permissions.items():
+        desc = rule.description or rule.pattern
+        console.print(f"  [cyan]{key}[/]  {desc}")
+    console.print(f"\n[dim]  Use /permissions revoke <key> to remove.[/]\n")
+
+
+@register_command("tasks")
+def cmd_tasks(engine: Engine, arg: str) -> None:
+    """List background tasks and their status."""
+    from core.tasks import get_task_runner
+    from ui.console import console
+
+    runner = get_task_runner()
+    tasks = runner.list_all()
+    if not tasks:
+        console.print("[dim]  No background tasks.[/]")
+        return
+    console.print("\n[bold]Background tasks:[/]")
+    for t in tasks:
+        status_color = {"done": "green", "failed": "red", "running": "yellow"}.get(
+            t["status"], "dim"
+        )
+        exit_info = f"  exit={t['exit_code']}" if t["exit_code"] is not None else ""
+        cmd_preview = t["command"][:60]
+        console.print(
+            f"  [cyan]{t['task_id']}[/] [{status_color}]{t['status']}[/]  {cmd_preview}{exit_info}"
+        )
+    console.print()

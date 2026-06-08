@@ -34,13 +34,18 @@ class StreamContext:
 
 
 class AnthropicClient:
-    def __init__(self, model: str = "claude-sonnet-4-20250514", logger: Logger | None = None):
+    def __init__(
+        self,
+        model: str = "claude-sonnet-4-20250514",
+        logger: Logger | None = None,
+        timeout: float = 60.0,
+    ):
         self.model = model
         base_url = os.getenv("ANTHROPIC_BASE_URL")
         # Prevent proxy software (Clash/V2Ray) from injecting auth headers
         # via the ANTHROPIC_AUTH_TOKEN env var
         os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)
-        client_kwargs: dict = {}
+        client_kwargs: dict = {"timeout": timeout}
         if base_url:
             client_kwargs["base_url"] = base_url
         # Use direct connection (bypass system proxy) to avoid SSL issues

@@ -32,7 +32,7 @@ def write_file(path: str, content: str) -> str:
 @tool("Replace the first occurrence of old_text with new_text in a file.", dangerous=True)
 def edit_file(path: str, old_text: str, new_text: str) -> str:
     fp = Path(path).expanduser().resolve()
-    content = fp.read_text(encoding="utf-8")
+    content = fp.read_text(encoding="utf-8", errors="replace")
     if old_text not in content:
         return f"Error: old_text not found in {path}"
     fp.write_text(content.replace(old_text, new_text, 1), encoding="utf-8")

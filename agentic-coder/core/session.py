@@ -80,7 +80,7 @@ def load_session(name: str = "last") -> dict | None:
     if not path.exists():
         return None
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
         if not isinstance(data.get("messages"), list):
             return None
         return data
@@ -111,7 +111,7 @@ def list_sessions() -> list[dict]:
     sessions = []
     for path in SESSION_DIR.glob("*.json"):
         try:
-            data = json.loads(path.read_text(encoding="utf-8"))
+            data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
             sessions.append({
                 "name": path.stem,
                 "model": data.get("model", "?"),
