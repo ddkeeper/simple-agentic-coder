@@ -9,7 +9,7 @@ from typing import Generator, Literal
 import httpx
 from anthropic import Anthropic
 
-from utils.logger import Logger
+from agentic_coder.utils.logger import Logger
 
 
 @dataclass

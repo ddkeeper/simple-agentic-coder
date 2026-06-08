@@ -6,7 +6,7 @@ import os
 import platform
 from datetime import datetime
 
-from tools.git import get_current_branch
+from agentic_coder.tools.git import get_current_branch
 
 
 def build_system_prompt() -> str:
@@ -23,7 +23,7 @@ def build_system_prompt() -> str:
 
     rules_section = ""
     try:
-        from core.state import get_state
+        from agentic_coder.core.state import get_state
         state = get_state()
         if state.coder_rules:
             rules_section = f"\n\n<project_rules>\n{state.coder_rules}\n</project_rules>"

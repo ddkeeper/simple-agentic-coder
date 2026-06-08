@@ -8,10 +8,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from core.context import auto_compact, estimate_tokens, microcompact
-from core.llm import AnthropicClient
-from tools.git import git_auto_commit
-from tools.registry import execute_tool, get_anthropic_tools
+from agentic_coder.core.context import auto_compact, estimate_tokens, microcompact
+from agentic_coder.core.llm import AnthropicClient
+from agentic_coder.tools.git import git_auto_commit
+from agentic_coder.tools.registry import execute_tool, get_anthropic_tools
 
 
 class Engine:
@@ -23,7 +23,7 @@ class Engine:
 
     def run(self, user_input: str) -> str:
         """Process one user turn. Returns the final assistant text."""
-        from ui.console import print_info, print_tool, print_token_usage, stream_print
+        from agentic_coder.ui.console import print_info, print_tool, print_token_usage, stream_print
 
         self.messages.append({"role": "user", "content": user_input})
         tools = get_anthropic_tools()
@@ -63,7 +63,7 @@ class Engine:
 
             # --- API error handling ---
             if ctx.api_error:
-                from ui.console import print_error
+                from agentic_coder.ui.console import print_error
                 print_error(f"API error: {ctx.api_error}")
                 return ""
 
@@ -117,7 +117,7 @@ class Engine:
 
     def _dispatch_tool(self, name: str, tool_input: dict) -> str:
         """Dispatch a tool call with HITL approval for dangerous tools."""
-        from ui.hitl import check_approval
+        from agentic_coder.ui.hitl import check_approval
 
         if not self.auto_approve and not check_approval(name, tool_input):
             return "Error: User denied permission"

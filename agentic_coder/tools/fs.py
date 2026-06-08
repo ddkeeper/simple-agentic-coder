@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from tools.registry import tool
+from agentic_coder.tools.registry import tool
 
 
 @tool("Read the contents of a file. Returns the full text or up to 'limit' lines.")

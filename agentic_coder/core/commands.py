@@ -10,7 +10,7 @@ import time
 from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from core.engine import Engine
+    from agentic_coder.core.engine import Engine
 
 COMMANDS: dict[str, Callable] = {}
 
@@ -50,7 +50,7 @@ def handle_input(text: str, engine: Engine) -> str | None:
 
     handler = COMMANDS.get(cmd)
     if handler is None:
-        from ui.console import print_error
+        from agentic_coder.ui.console import print_error
         print_error(f"Unknown command: /{cmd}. Type /help for available commands.")
         return None
 
@@ -69,15 +69,15 @@ def list_commands() -> list[str]:
 def cmd_clear(engine: Engine, arg: str) -> None:
     """Clear conversation history."""
     engine.messages.clear()
-    from ui.console import print_info
+    from agentic_coder.ui.console import print_info
     print_info("conversation cleared")
 
 
 @register_command("compact")
 def cmd_compact(engine: Engine, arg: str) -> None:
     """Force context compaction."""
-    from core.context import auto_compact, estimate_tokens
-    from ui.console import print_compact
+    from agentic_coder.core.context import auto_compact, estimate_tokens
+    from agentic_coder.ui.console import print_compact
 
     tokens = estimate_tokens(engine.messages)
     if len(engine.messages) <= 2:
@@ -102,7 +102,7 @@ def cmd_exit(engine: Engine, arg: str) -> None:
 @register_command("help")
 def cmd_help(engine: Engine, arg: str) -> None:
     """List available commands."""
-    from ui.console import console
+    from agentic_coder.ui.console import console
     console.print("\n[bold]Available commands:[/]")
     for name in list_commands():
         handler = COMMANDS[name]
@@ -116,8 +116,8 @@ def cmd_resume(engine: Engine, arg: str) -> None:
     """Resume a saved session. Auto-saves current session first. Usage: /resume [name]"""
     import os as _os
     import time as _time
-    from core.session import load_session, most_recent_name, save_session
-    from ui.console import console, print_info, print_session_history
+    from agentic_coder.core.session import load_session, most_recent_name, save_session
+    from agentic_coder.ui.console import console, print_info, print_session_history
 
     # /resume without name → most recent session
     raw = arg.strip()
@@ -145,8 +145,8 @@ def cmd_resume(engine: Engine, arg: str) -> None:
 @register_command("sessions")
 def cmd_sessions(engine: Engine, arg: str) -> None:
     """List saved sessions."""
-    from core.session import list_sessions
-    from ui.console import console
+    from agentic_coder.core.session import list_sessions
+    from agentic_coder.ui.console import console
     sessions = list_sessions()
     if not sessions:
         console.print("[dim]  No saved sessions.[/]")
@@ -166,8 +166,8 @@ def cmd_sessions(engine: Engine, arg: str) -> None:
 @register_command("permissions")
 def cmd_permissions(engine: Engine, arg: str) -> None:
     """List or revoke permissions. Usage: /permissions [revoke <key>]"""
-    from core.state import get_state, remove_permission
-    from ui.console import console
+    from agentic_coder.core.state import get_state, remove_permission
+    from agentic_coder.ui.console import console
 
     state = get_state()
     if not state.permissions:
@@ -192,8 +192,8 @@ def cmd_permissions(engine: Engine, arg: str) -> None:
 @register_command("tasks")
 def cmd_tasks(engine: Engine, arg: str) -> None:
     """List background tasks and their status."""
-    from core.tasks import get_task_runner
-    from ui.console import console
+    from agentic_coder.core.tasks import get_task_runner
+    from agentic_coder.ui.console import console
 
     runner = get_task_runner()
     tasks = runner.list_all()

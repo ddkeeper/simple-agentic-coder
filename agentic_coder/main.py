@@ -7,10 +7,15 @@ import sys
 import time
 from pathlib import Path
 
+# Ensure imports work both when running directly and via pip install
+_PARENT = str(Path(__file__).resolve().parent.parent)
+if _PARENT not in sys.path:
+    sys.path.insert(0, _PARENT)
+
 import anthropic
 from dotenv import load_dotenv
 
-from ui.console import print_error, print_info
+from agentic_coder.ui.console import print_error, print_info
 
 __version__ = "1.0.0"
 
@@ -34,7 +39,7 @@ def parse_args():
 
 def _auto_save_session(engine) -> None:
     """Save session to disk. Called after each response and on exit."""
-    from core.session import save_session
+    from agentic_coder.core.session import save_session
     if engine.messages:
         name = getattr(engine, '_session_name', None) or time.strftime("session_%Y%m%d_%H%M%S")
         save_session(engine, name)
@@ -57,18 +62,18 @@ def main():
         sys.exit(1)
 
     # Import here to ensure tool registration happens before engine uses them
-    import tools.fs      # noqa: F401 - registers file tools
-    import tools.shell   # noqa: F401 - registers shell tool
-    import tools.git     # noqa: F401 - registers git_log tool
-    import tools.agent_tools  # noqa: F401 - registers agent tools
-    from core.commands import handle_input
-    from core.engine import Engine
-    from core.llm import AnthropicClient
-    from core.prompts import build_system_prompt
-    from core.session import load_session, most_recent_name
-    from core.state import get_state, init_state
-    from ui.console import console, print_info, print_session_history
-    from ui.input import get_input
+    import agentic_coder.tools.fs      # noqa: F401 - registers file tools
+    import agentic_coder.tools.shell   # noqa: F401 - registers shell tool
+    import agentic_coder.tools.git     # noqa: F401 - registers git_log tool
+    import agentic_coder.tools.agent_tools  # noqa: F401 - registers agent tools
+    from agentic_coder.core.commands import handle_input
+    from agentic_coder.core.engine import Engine
+    from agentic_coder.core.llm import AnthropicClient
+    from agentic_coder.core.prompts import build_system_prompt
+    from agentic_coder.core.session import load_session, most_recent_name
+    from agentic_coder.core.state import get_state, init_state
+    from agentic_coder.ui.console import console, print_info, print_session_history
+    from agentic_coder.ui.input import get_input
 
     init_state()
 

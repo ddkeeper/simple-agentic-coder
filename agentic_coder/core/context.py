@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import json
 
-from core.llm import AnthropicClient
-from ui.console import print_compact
+from agentic_coder.core.llm import AnthropicClient
+from agentic_coder.ui.console import print_compact
 
 
 def estimate_tokens(messages: list) -> int:

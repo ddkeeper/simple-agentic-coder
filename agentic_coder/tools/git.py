@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 
-from tools.registry import tool
+from agentic_coder.tools.registry import tool
 
 try:
     import git as gitmodule

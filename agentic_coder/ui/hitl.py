@@ -44,7 +44,7 @@ def check_approval(tool_name: str, tool_input: dict) -> bool:
     """Check if a tool call needs user approval."""
     # Check persisted permissions first
     try:
-        from core.state import get_state
+        from agentic_coder.core.state import get_state
         state = get_state()
         pattern = _build_pattern(tool_name, tool_input)
         key = f"{tool_name}:{pattern}"
@@ -75,7 +75,7 @@ def _ask_user(detail: str, tool_name: str = "", pattern: str = "") -> bool:
         answer = input(f"\033[33m  Approve? {detail} [y/N/a(lways)]: \033[0m").strip().lower()
         if answer in ("a", "always"):
             if tool_name and pattern:
-                from core.state import add_permission
+                from agentic_coder.core.state import add_permission
                 add_permission(tool_name, pattern, description=detail)
             return True
         return answer in ("y", "yes")

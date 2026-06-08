@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from core.engine import Engine
+    from agentic_coder.core.engine import Engine
 
 SESSION_DIR = Path.home() / ".agentic-coder" / "sessions"
 

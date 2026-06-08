@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import time
 
-from core.context import auto_compact, microcompact
-from core.llm import AnthropicClient
-from tools.registry import execute_tool, get_anthropic_tools
+from agentic_coder.core.context import auto_compact, microcompact
+from agentic_coder.core.llm import AnthropicClient
+from agentic_coder.tools.registry import execute_tool, get_anthropic_tools
 
 MAX_ITERATIONS = 30
 TIMEOUT_SECONDS = 300
@@ -37,7 +37,7 @@ def run_sub_agent(
     if allowed_tools is None:
         allowed_tools = DEFAULT_TOOLS
     if llm is None:
-        from core.state import get_state
+        from agentic_coder.core.state import get_state
         llm = get_state().llm
 
     prompt = _build_child_prompt(task_description)
