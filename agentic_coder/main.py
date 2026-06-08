@@ -10,8 +10,9 @@ from pathlib import Path
 import anthropic
 from dotenv import load_dotenv
 
-from agentic_coder import __version__
 from ui.console import print_error, print_info
+
+__version__ = "1.0.0"
 
 # Load .env from: 1) CWD (project-specific) 2) ~/.agentic-coder/ (user global)
 # Both use override=False so explicit env vars always take precedence
