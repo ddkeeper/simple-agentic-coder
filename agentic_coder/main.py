@@ -3,18 +3,25 @@
 import argparse
 import atexit
 import os
+import sys
 import time
 from pathlib import Path
 
+import anthropic
 from dotenv import load_dotenv
 
-# Load .env from the same directory as this script
-_SCRIPT_DIR = Path(__file__).resolve().parent
-load_dotenv(_SCRIPT_DIR / ".env", override=True)
+from agentic_coder import __version__
+from ui.console import print_error, print_info
+
+# Load .env from: 1) CWD (project-specific) 2) ~/.agentic-coder/ (user global)
+# Both use override=False so explicit env vars always take precedence
+load_dotenv(Path.home() / ".agentic-coder" / ".env", override=False)
+load_dotenv(Path.cwd() / ".env", override=False)
 
 
 def parse_args():
     p = argparse.ArgumentParser(description="Agentic Coder - AI coding agent")
+    p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     p.add_argument("--model", default=os.getenv("MODEL_ID", "claude-sonnet-4-20250514"))
     p.add_argument("--yes", action="store_true", help="Auto-approve all tool calls")
     p.add_argument(
@@ -36,6 +43,17 @@ def _auto_save_session(engine) -> None:
 
 def main():
     args = parse_args()
+
+    # Validate API key before proceeding
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        print_error("ANTHROPIC_API_KEY is not set.")
+        print_info(
+            "Set it via one of:\n"
+            "  1. Environment variable:  export ANTHROPIC_API_KEY=sk-ant-...\n"
+            "  2. .env file in CWD:      echo ANTHROPIC_API_KEY=sk-ant-... > .env\n"
+            "  3. Global config:         echo ANTHROPIC_API_KEY=sk-ant-... > ~/.agentic-coder/.env"
+        )
+        sys.exit(1)
 
     # Import here to ensure tool registration happens before engine uses them
     import tools.fs      # noqa: F401 - registers file tools
@@ -99,7 +117,12 @@ def main():
             console.print()
             continue
 
-        engine.run(result)
+        try:
+            engine.run(result)
+        except anthropic.APIError as e:
+            print_error(f"API error: {e}")
+        except KeyboardInterrupt:
+            print_info("\ninterrupted")
         _auto_save_session(engine)
         console.print()
 

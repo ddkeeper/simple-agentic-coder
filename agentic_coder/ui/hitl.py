@@ -11,7 +11,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-WORKDIR = Path.cwd().resolve()
+
+def _get_workdir() -> Path:
+    return Path.cwd().resolve()
 
 DANGEROUS_CMD_PATTERNS = [
     "rm -rf", "sudo", "shutdown", "reboot", "> /dev/",
@@ -24,7 +26,7 @@ WRITE_TOOLS = {"write_file", "edit_file"}
 def _is_external_path(path_str: str) -> bool:
     try:
         resolved = Path(path_str).expanduser().resolve()
-        return not resolved.is_relative_to(WORKDIR)
+        return not resolved.is_relative_to(_get_workdir())
     except (OSError, ValueError):
         return False
 

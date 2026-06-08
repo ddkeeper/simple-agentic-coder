@@ -7,8 +7,6 @@ from pathlib import Path
 
 from tools.registry import tool
 
-WORKDIR = Path.cwd()
-
 DANGEROUS_PATTERNS = ["rm -rf /", "sudo", "shutdown", "reboot", "> /dev/", "mkfs", "dd if="]
 
 
@@ -18,7 +16,7 @@ def run_command(command: str) -> str:
         return "Error: Dangerous command blocked"
     try:
         r = subprocess.run(
-            command, shell=True, cwd=str(WORKDIR),
+            command, shell=True, cwd=str(Path.cwd()),
             capture_output=True, text=True, timeout=120,
         )
         out = (r.stdout + r.stderr).strip()

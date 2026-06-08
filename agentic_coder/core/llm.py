@@ -30,6 +30,7 @@ class StreamContext:
     stop_reason: str = ""
     usage: dict = field(default_factory=dict)
     interrupted: bool = False
+    api_error: str = ""
     current_block_type: str = ""
 
 
@@ -181,5 +182,10 @@ class AnthropicClient:
                 "text_length": len(ctx.text),
                 "usage": ctx.usage,
             })
+        except Exception as e:
+            ctx.api_error = str(e)
+            if not ctx.stop_reason:
+                ctx.stop_reason = "error"
+            self.logger.log("response_error", {"error": str(e)})
 
         yield ctx, StreamEvent(type="stream_end")

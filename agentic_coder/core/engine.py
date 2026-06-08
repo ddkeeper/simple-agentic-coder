@@ -61,6 +61,12 @@ class Engine:
             turn_usage["input_tokens"] += ctx.usage.get("input_tokens", 0)
             turn_usage["output_tokens"] += ctx.usage.get("output_tokens", 0)
 
+            # --- API error handling ---
+            if ctx.api_error:
+                from ui.console import print_error
+                print_error(f"API error: {ctx.api_error}")
+                return ""
+
             # --- Interrupt handling ---
             if ctx.interrupted:
                 safe_content = []

@@ -9,7 +9,6 @@ from pydantic import BaseModel, ConfigDict
 
 PERMISSIONS_FILE = Path.home() / ".agentic-coder" / "permissions.json"
 GLOBAL_RULES = Path.home() / ".coder-rules"
-PROJECT_RULES = Path.cwd() / ".coder-rules"
 
 
 class PermissionRule(BaseModel):
@@ -81,7 +80,7 @@ def remove_permission(key: str) -> bool:
 
 def _load_coder_rules() -> str:
     parts = []
-    for path in (GLOBAL_RULES, PROJECT_RULES):
+    for path in (GLOBAL_RULES, Path.cwd() / ".coder-rules"):
         if path.exists():
             try:
                 parts.append(path.read_text(encoding="utf-8", errors="replace").strip())

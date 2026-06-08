@@ -3,6 +3,9 @@ __pycache__/
 *.pyo
 .env
 *.egg-info/
+*.egg
 dist/
 build/
 .eggs/
+.pytest_cache/
+*.log
