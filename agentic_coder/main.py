@@ -15,7 +15,7 @@ if _PARENT not in sys.path:
 import anthropic
 from dotenv import load_dotenv
 
-from agentic_coder.ui.console import print_error, print_info
+from agentic_coder.ui.console import console, print_error, print_info, print_session_history
 
 __version__ = "1.0.0"
 
@@ -72,7 +72,6 @@ def main():
     from agentic_coder.core.prompts import build_system_prompt
     from agentic_coder.core.session import load_session, most_recent_name
     from agentic_coder.core.state import get_state, init_state
-    from agentic_coder.ui.console import console, print_info, print_session_history
     from agentic_coder.ui.input import get_input
 
     init_state()
