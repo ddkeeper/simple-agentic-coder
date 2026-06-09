@@ -87,7 +87,7 @@ def main():
     engine._session_name = None
 
     # Banner (always shown first)
-    console.print(f"\n[bold cyan]Agentic Coder[/] ({args.model})")
+    console.print("\n[bold cyan]Agentic Coder[/]")
     console.print("[dim]Type 'q' or 'exit' to quit. /help for commands. Alt+Enter for newlines.[/]\n")
 
     # Resume session if requested
